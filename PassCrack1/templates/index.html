@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassCrack - Universal Password Cracker</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-shield-hal"></i>
+                <h1>PassCrack</h1>
+            </div>
+            <p class="tagline">Universal dictionary-based password recovery tool</p>
+        </header>
+
+        <!-- Dependency Check -->
+        <div class="dependency-check" id="dependencyCheck">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Checking dependencies...</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent" style="display: none;">
+            <!-- File Upload Section -->
+            <div class="upload-section">
+                <h2><i class="fas fa-lock"></i> Protected File</h2>
+                <div class="upload-area" id="targetUpload" data-type="target">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop or click to upload protected file</p>
+                    <small>Supported: Office, PDF, ZIP, 7z, RAR</small>
+                    <input type="file" id="targetFile" style="display: none;" accept=".docx,.doc,.xlsx,.xls,.pptx,.ppt,.pdf,.zip,.7z,.rar">
+                </div>
+                <div class="file-info" id="targetInfo" style="display: none;">
+                    <div class="file-details">
+                        <i class="fas fa-file"></i>
+                        <div class="file-meta">
+                            <span class="filename" id="targetFilename"></span>
+                            <span class="filesize" id="targetSize"></span>
+                        </div>
+                    </div>
+                    <div class="file-hash">
+                        <span class="hash-label">SHA-256:</span>
+                        <code id="targetHash"></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <h2><i class="fas fa-list"></i> Wordlist File</h2>
+                <div class="upload-area" id="wordlistUpload" data-type="wordlist">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop or click to upload wordlist</p>
+                    <small>Supported: TXT, CSV, Excel, DOCX, PPTX</small>
+                    <input type="file" id="wordlistFile" style="display: none;" accept=".txt,.csv,.xls,.xlsx,.docx,.pptx">
+                </div>
+                <div class="file-info" id="wordlistInfo" style="display: none;">
+                    <div class="file-details">
+                        <i class="fas fa-file"></i>
+                        <div class="file-meta">
+                            <span class="filename" id="wordlistFilename"></span>
+                            <span class="filesize" id="wordlistSize"></span>
+                        </div>
+                    </div>
+                    <div class="file-stats">
+                        <span class="stat" id="wordlistCount">Loading passwords...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls" id="controls" style="display: none;">
+                <button class="btn btn-primary" id="startCrack" disabled>
+                    <i class="fas fa-play"></i> Start Cracking
+                </button>
+                <button class="btn btn-secondary" id="installDeps" style="display: none;">
+                    <i class="fas fa-download"></i> Install Dependencies
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-header">
+                    <h3>Cracking in Progress</h3>
+                    <button class="btn btn-danger btn-sm" id="stopCrack">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+                
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Status:</span>
+                        <span class="stat-value" id="status">Initializing...</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Current Password:</span>
+                        <span class="stat-value" id="currentPassword">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Method:</span>
+                        <span class="stat-value" id="currentMethod">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Progress:</span>
+                        <span class="stat-value" id="progressText">0/0 (0%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="resultSection" style="display: none;">
+                <div class="result-success" id="resultSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Password Found!</h3>
+                    <div class="result-details">
+                        <div class="result-item">
+                            <span class="result-label">Password:</span>
+                            <span class="result-value" id="resultPassword"></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Method:</span>
+                            <span class="result-value" id="resultMethod"></span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Decrypted Hash:</span>
+                            <code class="result-hash" id="resultHash"></code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-failed" id="resultFailed" style="display: none;">
+                    <i class="fas fa-times-circle"></i>
+                    <h3>Cracking Failed</h3>
+                    <p id="errorMessage"></p>
+                </div>
+                
+                <div class="result-actions">
+                    <button class="btn btn-primary" id="newCrack">
+                        <i class="fas fa-redo"></i> New Crack
+                    </button>
+                    <button class="btn btn-secondary" id="downloadResult" style="display: none;">
+                        <i class="fas fa-download"></i> Download Result
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>PassCrack - For educational and security testing purposes only</p>
+            <p class="disclaimer">Ensure you have permission to test the provided files</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
